@@ -1,0 +1,263 @@
+ 
+ 
+ OS CÓDIGOS ABAIXO PODEM SER MELHOR VISUALIZADOS ABRINDO COM NOTEPAD++ E DEFININDO A LINGUAGEM DO NOTEPAD++ COMO C# NAS CONFIGURAÇÕES.
+ 
+ 
+ PARA UTILIZAR OS CÓDIGOS ABAIXO QUE DEPENDEM DE VIEW MODEL, CRIE UMA CLASSE BASE E UTILIZE O CÓDIGO ABAIXO NELA. LOGO APÓS HERDE ESSA CLASSE BASE EM SUAS VIEWMODELS
+ 
+ 
+OS CÓDIGOS ABAIXO FORAM TESTADOS NA VERSÃO XAMARIN.FORMS: 5.0.0.2578
+ 
+ 
+ CLASSE BASE INÍCIO ------------------------------------------------------------------------------------------------------------------------------------------
+
+using System;
+using System.Collections.Generic;
+using System.Text;
+using System.Threading.Tasks;
+using Xamarin.Forms;
+using System.Runtime.CompilerServices;
+using System.ComponentModel;
+
+namespace NOME-DO-SEU-PROJETO-AQUI.ViewModel
+{
+    public class BaseViewModel : INotifyPropertyChanged
+    {
+        public INavigation Navigation;
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        private ImageSource foto;
+        public ImageSource Foto
+        {
+            get { return foto; }
+            set
+            {
+                foto = value;
+                OnPropertyChanged();
+            }
+        }
+
+        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            //PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            var handler = PropertyChanged;
+            if (handler != null)
+            {
+                handler(this, new PropertyChangedEventArgs(propertyName));
+            }
+        }
+
+        public async Task DisplayAlert(string title, string message, string cancel)
+        {
+            await Application.Current.MainPage.DisplayAlert(title, message, cancel);
+        }
+
+        public async Task<bool> DisplayAlert(string title, string message, string accept, string cancel)
+        {
+            return await Application.Current.MainPage.DisplayAlert(title, message, accept, cancel);
+        }
+
+        protected bool SetProperty<T>(ref T field, T value, [CallerMemberName] string propertyName = null)
+        {
+            if (EqualityComparer<T>.Default.Equals(field, value))
+            {
+                return false;
+            }
+
+            field = value;
+            OnPropertyChanged(propertyName);
+
+            return true;
+        }
+
+        private string _title;
+        public string Title
+        {
+            get { return _title; }
+            set
+            {
+                SetProperty(ref _title, value);
+            }
+        }
+
+        private bool _isBusy;
+        public bool IsBusy
+        {
+            get { return _isBusy; }
+            set
+            {
+                SetProperty(ref _isBusy, value);
+            }
+        }
+        protected void SetValue<T>(ref T backingFieled, T value, [CallerMemberName] string propertyName = null)
+        {
+            if (EqualityComparer<T>.Default.Equals(backingFieled, value))
+
+            {
+
+                return;
+
+            }
+
+            backingFieled = value;
+
+            OnPropertyChanged(propertyName);
+        }
+        
+    }
+}
+
+CLASSE BASE FIM---------------------------------------------------------------------------------------------------------------------------------------------
+	 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+1)DICA DE NAVEGAÇÃO SEM ANIMAÇÃO:
+
+Se usar o false após o nome da página em que quero navegar, não sera mostrado nenhum efeito na transição da page,
+independente se estou usando pushAsync ou pushModalAsync.
+
+EX: await Navigation.PushAsync(new MainPage(), false);
+
+----------------------------------------------------------------------------------------------------------------
+2)ENVIAR CONTEÚDO DE UMA PÁGINA PARA OUTRA:
+
+Quando eu estiver na página 1 faço uma instância da página 2 assim como o exemplo abaixo. E adiciono o conteúdo dentro da chave ( ).
+
+
+EX:  Page2 EuSouUmaInstancia = new  Page2("Adicione o conteúdo aqui!");
+
+
+Na página 2 tenho dentro das chaves no initialize uma string chamada "frase" esperando o conteúdo externo. Então agora é só pegar o conteúdo da string "frase".
+
+EX:  
+public  Page2 (string frase)
+{
+		   InitializeComponent ();
+		   
+           DisplayAlert("Frase", frase, "Ok"); // Display exibindo o conteúdo da string "frase"
+}
+------------------------------------------------------------------------------------------------------------------
+3) BLOQUEAR O BOTÃO DE VOLTAR NATIVO DO ANDROID EM UMA PÁGINA
+
+Para bloqueia o botão simplesmente defina este método abaixo como false, e coloque ele abaixo no initialize no code bihar da View.
+
+ protected override bool OnBackButtonPressed()
+{
+            // true Bloquear button do android de voltar
+            return true;
+}          
+------------------------------------------------------------------------------------------------------------------
+4) NAVEGAR DIRETAMENTE PARA A PÁGINA 1 OU PRINCIPAL FECHANDO TODA A PILHA
+
+Para navegar para a página principal é necessário está usando o método de navegação PushAsync();
+então é só adicionar no button:
+
+await Navigation.PopToRootAsync();
+
+-------------------------------------------------------------------------------------------------------------------
+5) OCULTAR TODAS AS BARRAS NATIVAS DE NAVEGAÇÃO DO ANDROID
+
+Para ocultar todas barras de navegação nativa do android basta adicionar o seguinte código no MainActivity:
+
+protected override void OnResume()
+ {
+            base.OnResume();
+            WindowCompat.SetDecorFitsSystemWindows(Window, false);
+            var windowInsetsControllerCompat = new WindowInsetsControllerCompat(Window, Window.DecorView);
+            windowInsetsControllerCompat.Hide(WindowInsetsCompat.Type.SystemBars() | WindowInsetsCompat.Type.NavigationBars());
+            windowInsetsControllerCompat.SystemBarsBehavior = WindowInsetsControllerCompat.BehaviorShowTransientBarsBySwipe;
+        }
+--------------------------------------------------------------------------------------------------------------------
+6) ADICIONAR ANIMAÇÃO A QUALQUER ELEMENTO NO XAML
+
+neste exemplo estou adicionando um fade ao pressionar o BoxView.
+PARA MAIS EXEMPLOS DE USO: 
+
+https://github.com/xamarin/XamarinCommunityToolkit/blob/main/samples/XCT.Sample/Pages/Behaviors/AnimationBehaviorPage.xaml
+
+ <BoxView BackgroundColor="Red" IsVisible="false">
+            <BoxView.Behaviors>
+                <xct:AnimationBehavior >
+                    <xct:AnimationBehavior.AnimationType>
+                        <xct:FadeAnimation
+                    Easing="{x:Static Easing.Linear}"
+                    Duration="10000"
+                />
+                    </xct:AnimationBehavior.AnimationType>
+                </xct:AnimationBehavior>
+            </BoxView.Behaviors>
+        </BoxView>
+		
+--------------------------------------------------------------------------------------------------------------------
+7) SALVAR CONTEÚDO NAS PREFERÊNCIAS SEM USAR BANCO DE DADOS 
+
+OBS: Não pode ser usado para salvar grandes quantidades de conteúdo, e nem dados pessoais de usuário. 
+
+https://learn.microsoft.com/en-us/xamarin/essentials/preferences?tabs=android
+
+---------------------------------------------------------------------------------------------------------------------
+8) ANIMAÇÃO FADETO - SCALETO E TODAS AS OUTRAS, EM QUALQUER ELEMENTO, USANDO BINDING, COM A VIEWMODEL
+
+        NA VIEW:
+
+        <Label Text="{Binding MeuLabel.Text}" Scale="{Binding MeuLabel.Scale}" TextColor="Red" FontSize="20"/>
+
+        NO VIEWMODEL:
+        
+		// Crie uma variavel do tipo Label
+		
+		private Label _meuLabel;
+		
+		// Adicione no construtor da pagina:
+		
+        MeuLabel = new Xamarin.Forms.Label { Text = "Meu label" };
+		
+		------------
+
+        // Crie os Objetos a seguir:
+		
+        public Xamarin.Forms.Label MeuLabel
+        {
+            get => _meuLabel;
+            set => SetProperty(ref _meuLabel, value);
+        }
+
+        public async Task AnimarLabel()
+        {
+            await MeuLabel.ScaleTo(3, 5000, Easing.Linear);
+        }
+        
+		// O codigo acima na viewmodel pode ser usado com o Command, exemplo ao clicar em button na view executar, 
+		// ou pode ser iniciado automaticamente quando abrir a view, tipo um fade na tela inteira para depois mostrar o conteúdo, veja um exemplo abaixo.
+		
+		EXEMPLO, ADICIONE ISSO NA VIEW:
+		
+		protected async override void OnAppearing()
+        {
+           base.OnAppearing();
+           var viewModel = (MinhaViewModel)BindingContext;
+           await viewModel.AnimarLabel();
+        }
+
+		// O código acima cria uma instancia da viewmodel, no code bihar da view e depois chama o método animarlabel, que executa a animação quando a page ser aberta.
+		--------------
+		TAMBÉM PODE INICIAR COM UM BUTTON E SEU CÓDIGO NO CODE BIHAR DA VIEW
+		EXEMPLO:
+		
+		private async void OnButtonClicked(object sender, EventArgs e)
+        {
+          var viewModel = (MinhaViewModel)BindingContext;
+          await viewModel.AnimarLabel();
+        }
+
+		--------------
+--------------------------------------------------------------------------------------------------------------------------
+9) MUDAR COR DOS ITENS DO APP DE ACORDO COM O TEMA DO CELULAR CLARO OU ESCURO
+
+        // O código abaixo pode ser usado no code bihade da view ou na viewmodel.
+		// O código abaixo está aplicando a cor green se o tema for claro e red se o tema for escuro, no Label e no TextBox.
+		
+         Text.SetAppThemeColor(Label.TextColorProperty, Color.Green, Color.Red);
+         Box.SetAppThemeColor(BoxView.BackgroundColorProperty, Color.Green, Color.Red);
