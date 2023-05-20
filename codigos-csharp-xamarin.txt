@@ -1,15 +1,13 @@
  
  
- OS CÓDIGOS ABAIXO PODEM SER MELHOR VISUALIZADOS ABRINDO COM NOTEPAD++ E DEFININDO A LINGUAGEM DO NOTEPAD++ COMO C# NAS CONFIGURAÇÕES.
- 
- 
- PARA UTILIZAR OS CÓDIGOS ABAIXO QUE DEPENDEM DE VIEW MODEL, CRIE UMA CLASSE BASE E UTILIZE O CÓDIGO ABAIXO NELA. LOGO APÓS HERDE ESSA CLASSE BASE EM SUAS VIEWMODELS
- 
+OS CÓDIGOS ABAIXO PODEM SER MELHOR VISUALIZADOS ABRINDO COM NOTEPAD++ E DEFININDO A LINGUAGEM DO NOTEPAD++ COMO C# NAS CONFIGURAÇÕES.
  
 OS CÓDIGOS ABAIXO FORAM TESTADOS NA VERSÃO XAMARIN.FORMS: 5.0.0.2578
  
  
- CLASSE BASE INÍCIO ------------------------------------------------------------------------------------------------------------------------------------------
+Para usar os códigos abaixo que dependem do ViewModel, crie uma classe Base e use o código abaixo nela. logo após Herde essa classe Base em suas ViewModels
+
+ CLASSE BASE INÍCIO --------------------------------------------------------------------------------------------
 
 using System;
 using System.Collections.Generic;
@@ -108,9 +106,11 @@ namespace NOME-DO-SEU-PROJETO-AQUI.ViewModel
     }
 }
 
-CLASSE BASE FIM---------------------------------------------------------------------------------------------------------------------------------------------
+CLASSE BASE FIM ------------------------------------------------------------------------------------------------
 	 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+CÓDIGOS +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
 1)DICA DE NAVEGAÇÃO SEM ANIMAÇÃO:
@@ -132,11 +132,11 @@ EX:  Page2 EuSouUmaInstancia = new  Page2("Adicione o conteúdo aqui!");
 Na página 2 tenho dentro das chaves no initialize uma string chamada "frase" esperando o conteúdo externo. Então agora é só pegar o conteúdo da string "frase".
 
 EX:  
-public  Page2 (string frase)
+public Page2 (string frase)
 {
-		   InitializeComponent ();
+        InitializeComponent ();
 		   
-           DisplayAlert("Frase", frase, "Ok"); // Display exibindo o conteúdo da string "frase"
+        DisplayAlert("Frase", frase, "Ok"); // Display exibindo o conteúdo da string "frase"
 }
 ------------------------------------------------------------------------------------------------------------------
 3) BLOQUEAR O BOTÃO DE VOLTAR NATIVO DO ANDROID EM UMA PÁGINA
@@ -145,8 +145,8 @@ Para bloqueia o botão simplesmente defina este método abaixo como false, e col
 
  protected override bool OnBackButtonPressed()
 {
-            // true Bloquear button do android de voltar
-            return true;
+         // true Bloquear button do android de voltar
+           return true;
 }          
 ------------------------------------------------------------------------------------------------------------------
 4) NAVEGAR DIRETAMENTE PARA A PÁGINA 1 OU PRINCIPAL FECHANDO TODA A PILHA
@@ -168,7 +168,7 @@ protected override void OnResume()
             var windowInsetsControllerCompat = new WindowInsetsControllerCompat(Window, Window.DecorView);
             windowInsetsControllerCompat.Hide(WindowInsetsCompat.Type.SystemBars() | WindowInsetsCompat.Type.NavigationBars());
             windowInsetsControllerCompat.SystemBarsBehavior = WindowInsetsControllerCompat.BehaviorShowTransientBarsBySwipe;
-        }
+ }
 --------------------------------------------------------------------------------------------------------------------
 6) ADICIONAR ANIMAÇÃO A QUALQUER ELEMENTO NO XAML
 
@@ -183,8 +183,7 @@ https://github.com/xamarin/XamarinCommunityToolkit/blob/main/samples/XCT.Sample/
                     <xct:AnimationBehavior.AnimationType>
                         <xct:FadeAnimation
                     Easing="{x:Static Easing.Linear}"
-                    Duration="10000"
-                />
+                    Duration="10000"/>
                     </xct:AnimationBehavior.AnimationType>
                 </xct:AnimationBehavior>
             </BoxView.Behaviors>
@@ -204,7 +203,7 @@ https://learn.microsoft.com/en-us/xamarin/essentials/preferences?tabs=android
 
         <Label Text="{Binding MeuLabel.Text}" Scale="{Binding MeuLabel.Scale}" TextColor="Red" FontSize="20"/>
 
-        NO VIEWMODEL:
+        NA VIEWMODEL:
         
 		// Crie uma variavel do tipo Label
 		
@@ -229,35 +228,41 @@ https://learn.microsoft.com/en-us/xamarin/essentials/preferences?tabs=android
             await MeuLabel.ScaleTo(3, 5000, Easing.Linear);
         }
         
-		// O codigo acima na viewmodel pode ser usado com o Command, exemplo ao clicar em button na view executar, 
-		// ou pode ser iniciado automaticamente quando abrir a view, tipo um fade na tela inteira para depois mostrar o conteúdo, veja um exemplo abaixo.
+	// O codigo acima na viewmodel pode ser usado com o Command, exemplo ao clicar em button na view executar, 
+	// ou pode ser iniciado automaticamente quando abrir a view, tipo um fade na tela inteira para depois mostrar o conteúdo,         
+	veja um exemplo abaixo.
 		
-		EXEMPLO, ADICIONE ISSO NA VIEW:
+        EXEMPLO, ADICIONE ISSO NA VIEW:
 		
-		protected async override void OnAppearing()
+	protected async override void OnAppearing()
         {
            base.OnAppearing();
            var viewModel = (MinhaViewModel)BindingContext;
            await viewModel.AnimarLabel();
         }
 
-		// O código acima cria uma instancia da viewmodel, no code bihar da view e depois chama o método animarlabel, que executa a animação quando a page ser aberta.
+	// O código acima cria uma instancia da viewmodel, no code bihar da view e depois chama o método animarlabel, que executa a                animação quando a page ser aberta.
+	
 		--------------
-		TAMBÉM PODE INICIAR COM UM BUTTON E SEU CÓDIGO NO CODE BIHAR DA VIEW
-		EXEMPLO:
 		
-		private async void OnButtonClicked(object sender, EventArgs e)
+	TAMBÉM PODE INICIAR COM UM BUTTON E SEU CÓDIGO NO CODE BIHAR DA VIEW
+	EXEMPLO:
+		
+	private async void OnButtonClicked(object sender, EventArgs e)
         {
-          var viewModel = (MinhaViewModel)BindingContext;
-          await viewModel.AnimarLabel();
+           var viewModel = (MinhaViewModel)BindingContext;
+           await viewModel.AnimarLabel();
         }
 
 		--------------
+		
 --------------------------------------------------------------------------------------------------------------------------
 9) MUDAR COR DOS ITENS DO APP DE ACORDO COM O TEMA DO CELULAR CLARO OU ESCURO
 
-        // O código abaixo pode ser usado no code bihade da view ou na viewmodel.
-		// O código abaixo está aplicando a cor green se o tema for claro e red se o tema for escuro, no Label e no TextBox.
+      // O código abaixo pode ser usado no code bihade da view ou na viewmodel.
+      // O código abaixo está aplicando a cor green se o tema for claro e red se o tema for escuro, no Label e no TextBox.
 		
-         Text.SetAppThemeColor(Label.TextColorProperty, Color.Green, Color.Red);
-         Box.SetAppThemeColor(BoxView.BackgroundColorProperty, Color.Green, Color.Red);
+       Text.SetAppThemeColor(Label.TextColorProperty, Color.Green, Color.Red);
+       Box.SetAppThemeColor(BoxView.BackgroundColorProperty, Color.Green, Color.Red);
+       
+---------------------------------------------------------------------------------------------------------------------------
